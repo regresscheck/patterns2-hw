@@ -27,43 +27,43 @@ public:
 
 class TTuple;
 
-class TTupleSupportedTypes {
-private:
-    friend TTuple;
-    std::map<std::string, ITupleField*> field_types;
-    TTupleSupportedTypes() {}
-    ~TTupleSupportedTypes() {
-        for (auto field_type : field_types) {
-            delete field_type.second;
-        }
-    }
-    TTupleSupportedTypes(const& TTupleSupportedTypes) = delete;
-    TTupleSupportedTypes& operator=(const& TTupleSupportedTypes) = delete;
-    template<typename T>
-    void addType(const std::string& type_name) {
-        field_types[type_name] = new TTupleField<T>();
-    }
-    ITupleField* createField(const std::string& type_name) {
-        return field_types[type_name]->copyField();
-    }
-    static TTupleSupportedTypes& Instance() {
-        static TTupleSupportedTypes singleton;
-        return singleton;
-    }
-    static ITupleField* CreateField(const std::string& type_name) {
-        TTupleSupportedTypes::Instance().createField(type_name);
-    }
-public:
-    template<typename T>
-    static void AddType(const std::string& type_name) {
-        TTupleSupportedTypes::Instance().addType<T>(type_name);
-    }
-};
 
 class TTuple {
 private:
     std::vector<ITupleField*> fields;
 public:
+    class TTupleSupportedTypes {
+    private:
+        friend TTuple;
+        std::map<std::string, ITupleField*> field_types;
+        TTupleSupportedTypes() {}
+        ~TTupleSupportedTypes() {
+            for (auto field_type : field_types) {
+                delete field_type.second;
+            }
+        }
+        TTupleSupportedTypes(const& TTupleSupportedTypes) = delete;
+        TTupleSupportedTypes& operator=(const& TTupleSupportedTypes) = delete;
+        template<typename T>
+        void addType(const std::string& type_name) {
+            field_types[type_name] = new TTupleField<T>();
+        }
+        ITupleField* createField(const std::string& type_name) {
+            return field_types[type_name]->copyField();
+        }
+        static TTupleSupportedTypes& Instance() {
+            static TTupleSupportedTypes singleton;
+            return singleton;
+        }
+        static ITupleField* CreateField(const std::string& type_name) {
+            TTupleSupportedTypes::Instance().createField(type_name);
+        }
+    public:
+        template<typename T>
+        static void AddType(const std::string& type_name) {
+            TTupleSupportedTypes::Instance().addType<T>(type_name);
+        }
+    };
     TTuple(std::vector<std::string> type_names) {
         for (const std::string& type_name : type_names) {
             fields.push_back(TTupleSupportedTypes::CreateField(type_name));
@@ -87,9 +87,9 @@ public:
 
 int main()
 {
-    TTupleSupportedTypes::AddType<int>("int");
-    TTupleSupportedTypes::AddType<double>("double");
-    TTupleSupportedTypes::AddType<bool>("bool");
+    TTuple::TTupleSupportedTypes::AddType<int>("int");
+    TTuple::TTupleSupportedTypes::AddType<double>("double");
+    TTuple::TTupleSupportedTypes::AddType<bool>("bool");
     std::vector<std::string> types;
     types.push_back("int");
     types.push_back("double");
